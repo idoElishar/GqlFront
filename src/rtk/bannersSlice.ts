@@ -1,20 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { Banner } from '../component/interface/interface';
-
-const api =import.meta.env.VITE_MY_SERVER;
+import { BannerSlice } from '../component/interface/interface';
+import { getAllBanners } from '../services/banners2.service';
 
 export const fetchBanners = createAsyncThunk('banners/fetchBanners', async () => {
-  const response = await axios.get(`${api}/banners`);
-  return response.data;
+  return await getAllBanners();
 });
-
-
-interface BannerSlice{
-    banners:Banner[]
-    status:string
-    error:string
-}
 
 const initialState:BannerSlice = {
   banners: [],

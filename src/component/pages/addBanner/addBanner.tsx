@@ -130,7 +130,7 @@ const AddBanner: React.FC = () => {
                     {...register('createAt', { value: createAt })}
                     error={!!errors.createAt}
                     helperText={errors.createAt?.message}
-                    onChange={(e) => setCreateAt(new Date(e.target.value))}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCreateAt(new Date(e.target.value))}
                     InputLabelProps={{ shrink: true }}
                     value={createAt.toISOString().split('T')[0]}
                 />

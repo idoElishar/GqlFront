@@ -1,9 +1,9 @@
 export interface Banner {
   _id: string;
-  id:number
+  id: number
   image: {
-      url: string;
-      alt: string;
+    url: string;
+    alt: string;
   };
   text: string;
   createdAt: Date;
@@ -14,13 +14,12 @@ export interface Banner {
   productID: number;
 }
 
-
 export interface BannerFormData {
 
   id?: number;
   image: {
-      url: File | null;
-      alt: string;
+    url: File | null;
+    alt: string;
   };
   text: string;
   createAt: Date;
@@ -32,7 +31,7 @@ export interface BannerFormData {
 }
 
 export interface User {
-    _id:string
+  _id?: string
   username: string;
   email: string;
   password: string;
@@ -43,14 +42,15 @@ export interface Product {
   [x: string]: any;
   id: number;
   title: string;
-  image:string;
+  image: string;
   price: number;
   description: string;
   category: string;
-  clickCount:number;
+  clickCount: number;
   quantity: number;
   attributes: Attributes[];
 }
+
 export interface Attributes {
   key: string;
   value: number | string;
@@ -63,7 +63,7 @@ export interface SearchResult {
 
 export interface EditRequestData {
   id: number | undefined;
-  image: { 
+  image: {
     url: string;
     alt: string;
   };
@@ -103,21 +103,56 @@ export interface ModalInterface {
   onClose: () => void;
 }
 
-
 export interface ClickData {
   _id: string;
   banner_id: string;
   clicks?: { [key: string]: number };
 }
+
 export interface ChartData {
   banner_id: string;
   clicks: number;
 }
+
 export interface ChartData2 {
   date: string;
   clicks: number;
 }
+
 export interface Banner2 {
   image: { alt: string };
   sale: number;
+}
+
+export interface Click {
+  date: string;
+  count: number;
+}
+
+export interface ClickData3 {
+  _id: string;
+  banner_id: string;
+  clicks: Click[];
+}
+
+export interface ChangePassword {
+  email: string;
+  newPassword: string;
+}
+
+export interface UserData {
+  email: string;
+  password: string;
+}
+
+export interface BannerSlice{
+  banners:Banner[]
+  status:string
+  error:string
+}
+
+export interface ProductSlice{
+  products:Product[]
+  status:string
+  error:string
 }
