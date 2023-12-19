@@ -1,22 +1,28 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { EditRequestData, AddRequestData } from "../component/interface/interface";
-const api = import.meta.env.VITE_MY_SERVER;
+const api = import.meta.env.VITE_GRAPHQL_SERVER;
 
 export const deleteBanner = async (id: string) => {
-  const token = localStorage.getItem("token")?.replace(/^"|"$/g, "");
-  const options = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
+  const query = `
+    mutation DeleteBanner {
+      deleteBanner(id: "${id}") {
+        success
+        message
+      }
+    }
+  `;
 
   try {
-    const response = await axios.delete(`${api}/banners/${id}`, options);
-    if (response)
-      return response
-
+    console.log('kuukiu');
+    const response = await axios.post(`${api}`, { query });
+    if (response && response.data && response.data.data && response.data.data.deleteBanner) {
+      return response.data.data.deleteBanner;
+    } else {
+      throw new Error('Failed to delete banner');
+    }
   } catch (error) {
     console.error("Error deleting banner:", error);
+    throw error;
   }
 };
 

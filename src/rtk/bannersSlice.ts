@@ -1,12 +1,18 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
 import { Banner } from '../component/interface/interface';
+import client from '../apolloClient/client';
+import { FETCH_BANNERS } from '../apolloClient/graphQL_querys';
 
-const api =import.meta.env.VITE_MY_SERVER;
 
 export const fetchBanners = createAsyncThunk('banners/fetchBanners', async () => {
-  const response = await axios.get(`${api}/banners`);
-  return response.data;
+  try {
+    const { data } = await client.query({
+      query: FETCH_BANNERS,
+    });
+    return data.getAllBanners
+  } catch (error) {
+    throw error; 
+  }
 });
 
 

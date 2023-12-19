@@ -55,7 +55,7 @@ export default function Statistic() {
     const [numBannersToShow, setNumBannersToShow] = useState<number>(5);
 
     useEffect(() => {
-        getTopBannerIdsWithClicks('http://localhost:8008/bannerclicks/')
+        getTopBannerIdsWithClicks(`${api}/bannerclicks/`)
             .then(data => {
                 const sortedBanners = data.sort((a, b) => b.clicks - a.clicks);
                 const topBanners = sortedBanners.slice(0, numBannersToShow);
@@ -63,7 +63,7 @@ export default function Statistic() {
             });
     }, [numBannersToShow]);
 
-    const handleSliderChange = (event: Event, value: number | number[]) => {
+    const handleSliderChange = (_event: Event, value: number | number[]) => {
         setNumBannersToShow(value as number);
     };
 

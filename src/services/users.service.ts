@@ -1,9 +1,36 @@
 import axios, { AxiosError } from "axios";
 import { User } from "../component/interface/interface";
+import { useMutation } from "@apollo/client";
+import { DELETE_USER } from "../apolloClient/graphQL_querys";
 
 const api = import.meta.env.VITE_MY_SERVER;
 
-export const deleteAccount = async (showModal: (message: string) => void) => {
+
+export  const deleteAccount = () => {
+    const id = localStorage.getItem('userId')
+    if (!id) {
+        return
+    }
+    const userId = JSON.parse(id)
+    const [deleteUserMutation] = useMutation(DELETE_USER);
+  
+    const handleDeleteUser = async () => {
+      try {
+        const { data } = await deleteUserMutation({
+          variables: { id: userId },
+        });
+  
+        // Handle successful deletion, if needed
+        console.log('User deleted:', data.deleteUser);
+      } catch (error:any) {
+        // Handle error
+        console.error('Error deleting user:', error.message);
+      }
+      
+    }
+handleDeleteUser};
+
+const deleteAccountt = async (showModal: (message: string) => void) => {
     const id = localStorage.getItem('userId')
     if (!id) {
         return
