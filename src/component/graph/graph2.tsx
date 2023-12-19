@@ -1,15 +1,35 @@
 import { Box, Grid, Slider, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { ClickData } from '../interface/interface';
-import { ChartData } from '../interface/interface';
-const api = import.meta.env.VITE_MY_SERVER;
+import { ChartData,ClickData3,Click } from '../interface/interface';
 
 async function getBannerName(bannerId: string) {
+    const graphqlQuery = {
+        query: `
+            query GetBannerName($id: ID!) {
+                getBannerById(id: $id) {
+                    image {
+                        alt
+                    }
+                }
+            }
+        `,
+        variables: {
+            id: bannerId
+        }
+    };
+
     try {
-        const response = await fetch(`${api}/banners/${bannerId}`);
-        const bannerData = await response.json();
-        return bannerData.image.alt;
+        const response = await fetch('http://localhost:4000/graphql/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(graphqlQuery)
+        });
+
+        const jsonResponse = await response.json();
+        return jsonResponse.data.getBannerById.image.alt;
     } catch (error) {
         console.error('Error fetching banner name:', error);
         return '';
@@ -19,15 +39,12 @@ async function getBannerName(bannerId: string) {
 async function getTopBannerIdsWithClicks(url: string): Promise<Array<{ banner_id: string, clicks: number }>> {
     try {
         const response = await fetch(url);
-        const data: ClickData[] = await response.json();
+        const data: ClickData3[] = await response.json();
 
-        const clickCounts: { [key: string]: number } = data.reduce((acc: { [key: string]: number }, item: ClickData) => {
-            if (item.clicks) {
-                Object.keys(item.clicks).forEach((date: string) => {
-                    if (item.clicks)
-                        acc[item.banner_id] = (acc[item.banner_id] || 0) + item.clicks[date];
-                });
-            }
+        const clickCounts: { [key: string]: number } = data.reduce((acc: { [key: string]: number }, item: ClickData3) => {
+            item.clicks.forEach((click: Click) => { 
+                acc[item.banner_id] = (acc[item.banner_id] || 0) + click.count;
+            });
             return acc;
         }, {});
 
@@ -49,13 +66,14 @@ async function getTopBannerIdsWithClicks(url: string): Promise<Array<{ banner_id
         return [];
     }
 }
+
 export default function Statistic() {
 
     const [chartData, setChartData] = useState<ChartData[]>([]);
     const [numBannersToShow, setNumBannersToShow] = useState<number>(5);
 
     useEffect(() => {
-        getTopBannerIdsWithClicks('http://localhost:8008/bannerclicks/')
+        getTopBannerIdsWithClicks(`http://localhost:8008/bannerclicks/`)
             .then(data => {
                 const sortedBanners = data.sort((a, b) => b.clicks - a.clicks);
                 const topBanners = sortedBanners.slice(0, numBannersToShow);
@@ -86,7 +104,7 @@ export default function Statistic() {
                         />
                         <ResponsiveContainer width="90%" height="90%" style={{ backgroundColor: '#b2dfdb', padding: '1em', borderRadius: '0.8em', border: 'solid black 0.1em' }}>
                             <BarChart
-                                width={500}
+                                width={300}
                                 height={300}
                                 data={chartData}
                                 margin={{

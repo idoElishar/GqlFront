@@ -40,6 +40,7 @@ export interface User {
 }
 
 export interface Product {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [x: string]: any;
   id: number;
   title: string;
@@ -120,4 +121,14 @@ export interface ChartData2 {
 export interface Banner2 {
   image: { alt: string };
   sale: number;
+}
+export interface Click {
+  date: string;
+  count: number;
+}
+
+export interface ClickData3 {
+  _id: string;
+  banner_id: string;
+  clicks: Click[];
 }

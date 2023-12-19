@@ -3,28 +3,49 @@ import { Box, Grid, Typography } from '@mui/material';
 import { XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, ResponsiveContainer, Area } from 'recharts';
 import { useParams } from 'react-router-dom';
 import { ChartData2 } from '../interface/interface';
-const api = import.meta.env.VITE_MY_SERVER;
+// const api = import.meta.env.VITE_MY_SERVER;
 
 export default function Statistic() {
     const [data, setData] = useState<ChartData2[]>([]);
     const { id } = useParams();
-    useEffect(() => {
+
+        useEffect(() => {
         const fetchData = async () => {
+            const query = `
+                query GetProductClicksById($id: ID!) { 
+                    getProductClicksById(id: $id) { 
+                        clicks { 
+                            date 
+                            count 
+                        } 
+                    } 
+                }`;
+            const variables = {
+                id: id,
+            };
             try {
-                const response = await fetch(`${api}/bannerclicks/${id}`);
+                const response = await fetch('http://localhost:4000/graphql/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, variables }),
+                });
                 const result = await response.json();
-                const formattedData = Object.keys(result.clicks).map(date => ({
-                    date: date,
-                    clicks: result.clicks[date]
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const formattedData = result.data.getProductClicksById.clicks.map((click:any) => ({
+                    date: click.date,
+                    clicks: click.count
                 }));
-                formattedData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                formattedData.sort((a:any, b:any) => new Date(a.date).getTime() - new Date(b.date).getTime());
                 setData(formattedData);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         };
         fetchData();
-    }, []);
+    }, [id]);
+    
+    
     
     
     
@@ -57,9 +78,5 @@ export default function Statistic() {
             </Grid>
         </Grid>
     </Box>
-    
-
-    
-
     );
 }
