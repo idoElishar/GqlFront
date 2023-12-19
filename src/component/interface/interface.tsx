@@ -39,6 +39,7 @@ export interface User {
 }
 
 export interface Product {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [x: string]: any;
   id: number;
   title: string;
@@ -133,6 +134,7 @@ export interface ClickData3 {
   _id: string;
   banner_id: string;
   clicks: Click[];
+
 }
 
 export interface ChangePassword {
@@ -155,4 +157,5 @@ export interface ProductSlice{
   products:Product[]
   status:string
   error:string
+
 }
