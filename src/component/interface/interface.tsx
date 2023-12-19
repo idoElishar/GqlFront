@@ -132,3 +132,13 @@ export interface ClickData3 {
   banner_id: string;
   clicks: Click[];
 }
+
+export interface Click {
+  date: string;
+  count: number;
+}
+export interface GetProductClicksByIdResponse {
+  getProductClicksById: {
+      clicks: Click[];
+  };
+}

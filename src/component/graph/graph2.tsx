@@ -3,31 +3,28 @@ import { useEffect, useState } from 'react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { ChartData,ClickData3,Click } from '../interface/interface';
 // const api = import.meta.env.VITE_MY_SERVER;
-
-
 async function getBannerName(bannerId: string) {
     const graphqlQuery = {
         query: `
             query {
                 getBannerById(_id: "${bannerId}") {
-                    id 
+                    id
                     image {
-                        alt 
+                        alt
                         url
-                    } 
-                    text 
-                    _id 
-                    createdAt 
-                    author 
-                    category 
-                    rating 
-                    sale 
+                    }
+                    text
+                    _id
+                    createdAt
+                    author
+                    category
+                    rating
+                    sale
                     productID
                 }
             }
         `
     };
-
     try {
         const response = await fetch('http://localhost:4000/graphql/', {
             method: 'POST',
@@ -36,7 +33,6 @@ async function getBannerName(bannerId: string) {
             },
             body: JSON.stringify(graphqlQuery)
         });
-
         const jsonResponse = await response.json();
         if (jsonResponse.errors) {
             console.error('GraphQL Errors:', jsonResponse.errors);
@@ -49,7 +45,6 @@ async function getBannerName(bannerId: string) {
         return '';
     }
 }
-
 async function getAllProductClicks() {
     const graphqlQuery = {
         query: `
@@ -65,7 +60,6 @@ async function getAllProductClicks() {
             }
         `
     };
-
     try {
         const response = await fetch('http://localhost:4000/graphql/', {
             method: 'POST',
@@ -74,7 +68,6 @@ async function getAllProductClicks() {
             },
             body: JSON.stringify(graphqlQuery)
         });
-
         const jsonResponse = await response.json();
         // טיפול בשגיאות של GraphQL, אם ישנן
         if (jsonResponse.errors) {
@@ -88,25 +81,20 @@ async function getAllProductClicks() {
         return [];
     }
 }
-
-
 async function getTopBannerIdsWithClicks(): Promise<Array<{ banner_id: string, clicks: number }>> {
     try {
         // בקשת GraphQL במקום fetch
         const data = await getAllProductClicks();
-
         // המשך הלוגיקה כפי שהייתה
         const clickCounts: { [key: string]: number } = data.reduce((acc: { [key: string]: number }, item: ClickData3) => {
-            item.clicks.forEach((click: Click) => { 
+            item.clicks.forEach((click: Click) => {
                 acc[item.banner_id] = (acc[item.banner_id] || 0) + click.count;
             });
             return acc;
         }, {});
-
         const bannerIds = Object.entries(clickCounts)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 7);
-
         const bannersWithNames = await Promise.all(
             bannerIds.map(async ([banner_id, clicks]) => ({
                 banner_id,
@@ -114,20 +102,15 @@ async function getTopBannerIdsWithClicks(): Promise<Array<{ banner_id: string, c
                 bannername: await getBannerName(banner_id)
             }))
         );
-
         return bannersWithNames;
     } catch (error) {
         console.error('Error fetching data:', error);
         return [];
     }
 }
-
-
 export default function Statistic() {
-
     const [chartData, setChartData] = useState<ChartData[]>([]);
     const [numBannersToShow, setNumBannersToShow] = useState<number>(5);
-
     useEffect(() => {
         getTopBannerIdsWithClicks()
             .then(data => {
@@ -136,11 +119,9 @@ export default function Statistic() {
                 setChartData(topBanners);
             });
     }, [numBannersToShow]);
-
-    const handleSliderChange = (event: Event, value: number | number[]) => {
+    const handleSliderChange = (_event: Event, value: number | number[]) => {
         setNumBannersToShow(value as number);
     };
-
     return (
         <Box sx={{ width: '100vw', height: '100vh' }}>
             <Grid container spacing={0} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '2em' }}>
@@ -158,7 +139,7 @@ export default function Statistic() {
                             onChange={handleSliderChange}
                             sx={{ width: '30%' }}
                         />
-                        <ResponsiveContainer width="90%" height="90%" style={{ backgroundColor: '#b2dfdb', padding: '1em', borderRadius: '0.8em', border: 'solid black 0.1em' }}>
+                        <ResponsiveContainer width="90%" height="90%" style={{ backgroundColor: '#B2DFDB', padding: '1em', borderRadius: '0.8em', border: 'solid black 0.1em' }}>
                             <BarChart
                                 width={300}
                                 height={300}
@@ -175,7 +156,7 @@ export default function Statistic() {
                                 <YAxis tick={{ fill: '#black' }} axisLine={{ stroke: 'black' }} />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="clicks" fill="#5e35b1" />
+                                <Bar dataKey="clicks" fill="#5E35B1" />
                             </BarChart>
                         </ResponsiveContainer>
                     </Box>
