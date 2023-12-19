@@ -137,6 +137,18 @@ export interface ClickData3 {
 
 }
 
+export interface Click {
+  date: string;
+  count: number;
+}
+export interface GetProductClicksByIdResponse {
+  getProductClicksById: {
+      clicks: Click[];
+  };
+
+
+}
+
 export interface ChangePassword {
   email: string;
   newPassword: string;
@@ -157,5 +169,6 @@ export interface ProductSlice{
   products:Product[]
   status:string
   error:string
+
 
 }
