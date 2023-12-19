@@ -7,12 +7,11 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle"; import React from "react";
 import { useState } from "react"
 import { validatePassword, validateEmail } from "../log-in/functions";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import { IconButton, InputAdornment } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-const api = import.meta.env.VITE_MY_SERVER;
-
+import { updatePassword } from "../../../services/banners2.service";
 
 export default function ForgetPassword() {
 
@@ -53,11 +52,8 @@ export default function ForgetPassword() {
     }
 
     try {
-      const response = await axios.put(
-        `${api}/users/changepassword`,
-        obj
-      );
-      if (response.data.message == "Verification email sent. Please check your email to confirm password change.") {
+      const response = await updatePassword(obj);
+      if (response?.data.message == "Verification email sent. Please check your email to confirm password change.") {
         setStatus(response.data.message)
       }
 
@@ -86,7 +82,7 @@ export default function ForgetPassword() {
             enter new password
           </DialogContentText>
           <TextField
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setObg((prevData) => ({
                 ...prevData,
                 email: e.target.value,
@@ -106,7 +102,7 @@ export default function ForgetPassword() {
             helperText={emailError}
           />
           <TextField
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setObg((prevData) => ({
                 ...prevData,
                 newPassword: e.target.value,

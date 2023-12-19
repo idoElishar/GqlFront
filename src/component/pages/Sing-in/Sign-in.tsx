@@ -8,15 +8,13 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import { validateEmail, validatePassword } from "../log-in/functions";
 import { IconButton, InputAdornment } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import ErrorModal from "../../Templates/ErrorModal";
-const api = import.meta.env.VITE_MY_SERVER;
-
-
+import { PostSignIn } from "../../../services/banners2.service";
 
 export default function SignIn() {
   const Navigate = useNavigate();
@@ -78,7 +76,7 @@ export default function SignIn() {
       !passwordVerificationError
     ) {
       try {
-        const response = await axios.post(` ${api}/users/register`, user);
+        const response = await PostSignIn(user);
         if (response) {
           setSuccessMessage("Sign-up successful!");
           setIsSuccess(true);
