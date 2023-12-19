@@ -119,6 +119,7 @@ export default function Statistic() {
                 setChartData(topBanners);
             });
     }, [numBannersToShow]);
+
     const handleSliderChange = (_event: Event, value: number | number[]) => {
         setNumBannersToShow(value as number);
     };

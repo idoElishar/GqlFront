@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import {Button,TextField,Dialog,DialogTitle,DialogContent,DialogActions,} from '@mui/material';
 import { fetchUserById, handleUpdateUserData } from '../../../services/users.service';
+import { useMutation } from '@apollo/client';
+import { UPDATE_USER_MUTATION } from '../../../apolloClient/graphQL_querys';
 
 const EditUser = () => {
+    const [updateUserMutation, { loading, error }] = useMutation(UPDATE_USER_MUTATION);
+
     const [isDialogOpen, setIsDialogOpen] = useState(true);
     const [userData, setUserData] = useState({
         _id: '',
@@ -25,15 +29,21 @@ const EditUser = () => {
         setIsDialogOpen(false);
     };
 
-    const handleSaveUserData = async () => {
-        try {
-           const response = await handleUpdateUserData(userData)
-           if( response)
-           handleCloseDialog()
-        } catch (error) {
-            console.error('Error updating user details:', error);
-        }
-    };
+        const handleSaveUserData = async () => {
+            try {
+              const { data } = await updateUserMutation({
+                variables: {
+                  id,
+                  updatedUserData,
+                },
+              });
+        
+              console.log('User updated:', data?.updateUserById);
+            } catch (error) {
+              console.error('Error updating user:', error.message);
+            }
+          };
+        
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;

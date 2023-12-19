@@ -4,11 +4,9 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
 import Autocomplete from "@mui/material/Autocomplete";
 import UserProfile from "./UserActions";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { SearchResult } from "../../interface/interface";
-
-const api = import.meta.env.VITE_MY_SERVER;
+import { allBannersForSearch, searchBanner } from "../../../services/banners2.service";
 
 export default function Header() {
   const Navigate = useNavigate();
@@ -16,37 +14,14 @@ export default function Header() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
   const handleSearch = async (searchQuery: string) => {
-    try {
-      const response = await axios.get(
-        `${api}/banners?search=${searchQuery}`
-      );
-      if (!Array.isArray(response.data)) {
-        throw new Error("Response is not an array");
-      }
-      const searchItems = response.data.map((banner) => ({
-        label: banner.image.alt,
-        id: banner._id,
-      }));
-      setSearchResults(searchItems)
-    } catch (error) {
-      console.error("Error fetching search results:", error);
-    }
+    const banner = await searchBanner(searchQuery);
+    setSearchResults(banner!);
   };
+  
   useEffect(() => {
     const loadInitialSearchResults = async () => {
-      try {
-        const response = await axios.get(`${api}/banners`);
-        if (!Array.isArray(response.data)) {
-          throw new Error("Response is not an array");
-        }
-        const searchItems = response.data.map((banner) => ({
-          label: banner.image.alt,
-          id: banner.id,
-        }));
-        setSearchResults(searchItems);
-      } catch (error) {
-        console.error("Error fetching initial search results:", error);
-      }
+      const banners = await allBannersForSearch();
+      setSearchResults(banners!);
     };
     loadInitialSearchResults();
   }, []);

@@ -6,17 +6,19 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import EditUser from '../../pages/EditUser/EditUser';
 import { useNavigate } from 'react-router-dom';
-import { deleteAccount } from '../../../services/users.service';
 import Modal from '../../Templates/Modal';
+import { useMutation } from '@apollo/client';
+import { DELETE_USER } from '../../../apolloClient/graphQL_querys';
 
 const UserProfile = () => {
+  const [deleteUserMutation] = useMutation(DELETE_USER);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const theme = useTheme();
   const Navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
 
-
+  
   const [editUserOpen, setEditUserOpen] = useState(false);
 
   const handleCloseMenu = () => {
@@ -32,10 +34,30 @@ const UserProfile = () => {
     handleCloseMenu();
   };
 
-  const handleDeleteAccount = async () => {
-      deleteAccount(handleOpenModal)
-       handleCloseMenu()
-    };
+  const deleteAccount = async () => {
+    const id = localStorage.getItem('userId');
+    if (!id) {
+      return;
+    }
+  
+    const userId = JSON.parse(id);
+  
+    try {
+      const  data  = await deleteUserMutation({
+        variables: { id: userId },
+      });
+      console.log(data,'gkuh');
+  
+      if (data) {
+        console.log('User deleted:', data);
+      } else {
+        console.error('Error deleting user: No data returned');
+      }
+    } catch (error:any) {
+      console.error('Error deleting user:', error.message);
+    }
+  };
+  
 
 
   const handleLogout = () => {
@@ -72,7 +94,7 @@ const UserProfile = () => {
           <EditIcon sx={{ marginRight: theme.spacing(1) }} />
           <Typography variant="body1">Edit Profile</Typography>
         </MenuItem>
-        <MenuItem onClick={handleDeleteAccount}>
+        <MenuItem onClick={deleteAccount}>
           <DeleteIcon sx={{ marginRight: theme.spacing(1) }} />
           <Typography variant="body1">Delete Account</Typography>
         </MenuItem>
