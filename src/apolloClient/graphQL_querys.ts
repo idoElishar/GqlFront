@@ -37,3 +37,14 @@ mutation UpdateUser($id: ID!, $updatedUserData: UserInput!) {
 }
 `
 
+
+export const GET_PRODUCT_CLICKS_BY_ID = gql`
+  query GetProductClicksById($id: ID!) {
+    getProductClicksById(id: $id) {
+      clicks {
+        date
+        count
+      }
+    }
+  }
+`;

@@ -2,43 +2,34 @@ import { useState, useEffect } from 'react';
 import { Box, Grid, Typography } from '@mui/material';
 import { XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, ResponsiveContainer, Area } from 'recharts';
 import { useParams } from 'react-router-dom';
-import { ChartData2, Click, GetProductClicksByIdResponse } from '../interface/interface';
+import client from '../../apolloClient/client';
+import { GET_PRODUCT_CLICKS_BY_ID } from '../../apolloClient/graphQL_querys';
+import { ChartData2, Click } from '../interface/interface';
 export default function Statistic() {
     const [data, setData] = useState<ChartData2[]>([]);
     const { id } = useParams();
+
     useEffect(() => {
         const fetchData = async () => {
-            const query = `
-                query GetProductClicksById($id: ID!) {
-                    getProductClicksById(id: $id) {
-                        clicks {
-                            date
-                            count
-                        }
-                    }
-                }`;
-            const variables = {
-                id: id,
-            };
             try {
-                const response = await fetch('http://localhost:4000/graphql/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, variables }),
+                const { data: responseData } = await client.query({
+                    query: GET_PRODUCT_CLICKS_BY_ID,
+                    variables: { id },
                 });
-                const result: { data: GetProductClicksByIdResponse } = await response.json();
-                const formattedData = result.data.getProductClicksById.clicks.map((click: Click) => ({
+                const formattedData = responseData.getProductClicksById.clicks.map((click: Click) => ({
                     date: click.date,
                     clicks: click.count
-                }));
-                formattedData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                })).sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
                 setData(formattedData);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         };
-        fetchData();
-    }, [id]);
+        if (id) {
+            fetchData();
+        }
+    }, [id, client]);
     return (
         <Box sx={{ width: '100vw', height: '100vh' }}>
             <Grid container spacing={0} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '2em' }}>

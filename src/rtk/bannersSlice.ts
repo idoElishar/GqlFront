@@ -5,6 +5,7 @@ import { FETCH_BANNERS } from '../apolloClient/graphQL_querys';
 
 
 export const fetchBanners = createAsyncThunk('banners/fetchBanners', async () => {
+  // eslint-disable-next-line no-useless-catch
   try {
     const { data } = await client.query({
       query: FETCH_BANNERS,

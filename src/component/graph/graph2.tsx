@@ -1,81 +1,70 @@
 import { Box, Grid, Slider, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { ChartData,ClickData3,Click } from '../interface/interface';
-// const api = import.meta.env.VITE_MY_SERVER;
+import { ChartData, ClickData3, Click } from '../interface/interface';
+import client from '../../apolloClient/client';
+import { gql } from '@apollo/client';
+
 async function getBannerName(bannerId: string) {
-    const graphqlQuery = {
-        query: `
-            query {
-                getBannerById(_id: "${bannerId}") {
-                    id
-                    image {
-                        alt
-                        url
-                    }
-                    text
-                    _id
-                    createdAt
-                    author
-                    category
-                    rating
-                    sale
-                    productID
+    const GET_BANNER_BY_ID = gql`
+        query GetBannerById {
+            getBannerById(_id: "${bannerId}") {
+                id
+                image {
+                    alt
+                    url
                 }
+                text
+                _id
+                createdAt
+                author
+                category
+                rating
+                sale
+                productID
             }
-        `
-    };
-    try {
-        const response = await fetch('http://localhost:4000/graphql/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(graphqlQuery)
-        });
-        const jsonResponse = await response.json();
-        if (jsonResponse.errors) {
-            console.error('GraphQL Errors:', jsonResponse.errors);
-            return '';
         }
-        console.log(jsonResponse.data.getBannerById[0].image.alt);
-        return jsonResponse.data.getBannerById[0].image.alt;
+    `;
+
+    try {
+        const { data } = await client.query({
+            query: GET_BANNER_BY_ID
+        });
+
+        if (data && data.getBannerById && data.getBannerById.length > 0) {
+            console.log(data.getBannerById[0].image.alt);
+            return data.getBannerById[0].image.alt;
+        }
+
+        return '';
     } catch (error) {
         console.error('Error fetching banner name:', error);
         return '';
     }
 }
+
+
+
 async function getAllProductClicks() {
-    const graphqlQuery = {
-        query: `
-            query GetAllProductClicks {
-                getAllProductClicks {
-                    _id
-                    banner_id
-                    clicks {
-                        date
-                        count
-                    }
+    const GET_ALL_PRODUCT_CLICKS = gql`
+        query GetAllProductClicks {
+            getAllProductClicks {
+                _id
+                banner_id
+                clicks {
+                    date
+                    count
                 }
             }
-        `
-    };
-    try {
-        const response = await fetch('http://localhost:4000/graphql/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(graphqlQuery)
-        });
-        const jsonResponse = await response.json();
-        // טיפול בשגיאות של GraphQL, אם ישנן
-        if (jsonResponse.errors) {
-            console.error('GraphQL Errors:', jsonResponse.errors);
-            return [];
         }
-        // החזרת הנתונים
-        return jsonResponse.data.getAllProductClicks;
+    `;
+
+    try {
+        const { data } = await client.query({
+            query: GET_ALL_PRODUCT_CLICKS
+        });
+
+        return data.getAllProductClicks;
     } catch (error) {
         console.error('Error fetching product clicks:', error);
         return [];
@@ -83,9 +72,7 @@ async function getAllProductClicks() {
 }
 async function getTopBannerIdsWithClicks(): Promise<Array<{ banner_id: string, clicks: number }>> {
     try {
-        // בקשת GraphQL במקום fetch
         const data = await getAllProductClicks();
-        // המשך הלוגיקה כפי שהייתה
         const clickCounts: { [key: string]: number } = data.reduce((acc: { [key: string]: number }, item: ClickData3) => {
             item.clicks.forEach((click: Click) => {
                 acc[item.banner_id] = (acc[item.banner_id] || 0) + click.count;
@@ -128,7 +115,7 @@ export default function Statistic() {
             <Grid container spacing={0} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '2em' }}>
                 <Grid item xs={8}>
                     <Box sx={{ height: '50vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <Typography variant="h6" gutterBottom>
+                        <Typography variant="h6" gutterBottom>
                             Select Number of Popular Banners:
                         </Typography>
                         <Slider
