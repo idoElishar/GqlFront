@@ -3,6 +3,7 @@ import { Box, Button, TextField, Typography, InputLabel, CardMedia } from '@mui/
 import { useForm, SubmitHandler } from 'react-hook-form';
 import schema from './schema';
 import { yupResolver } from '@hookform/resolvers/yup';
+
 import { addBanner, uploadImageToCloudinary } from '../../../services/banners.service';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BannerFormData } from '../../interface/interface';
@@ -130,7 +131,7 @@ const AddBanner: React.FC = () => {
                     {...register('createAt', { value: createAt })}
                     error={!!errors.createAt}
                     helperText={errors.createAt?.message}
-                    onChange={(e) => setCreateAt(new Date(e.target.value))}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCreateAt(new Date(e.target.value))}
                     InputLabelProps={{ shrink: true }}
                     value={createAt.toISOString().split('T')[0]}
                 />
