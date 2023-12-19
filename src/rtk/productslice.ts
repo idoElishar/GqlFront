@@ -1,20 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { Product } from '../component/interface/interface';
-
-const api = import.meta.env.VITE_MY_SERVER
+import { ProductSlice } from '../component/interface/interface';
+import { getAllProducts } from '../services/banners2.service';
 
 export const fetchProduct = createAsyncThunk('product/fetchProduct', async () => {
-  const response = await axios.get(`${api}/products`);
-  return response.data;
+  return await getAllProducts();
 });
-
-
-interface ProductSlice{
-    products:Product[]
-    status:string
-    error:string
-}
 
 const initialState:ProductSlice = {
   products: [],
