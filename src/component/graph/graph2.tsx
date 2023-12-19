@@ -2,87 +2,44 @@ import { Box, Grid, Slider, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { ChartData,ClickData3,Click } from '../interface/interface';
-// const api = import.meta.env.VITE_MY_SERVER;
+import {GET_BANNER_BY_ID, GET_ALL_PRODUCT_CLICKS} from '../../apolloClient/graphQL_querys';
+import client from '../../apolloClient/client';
 
 
-async function getBannerName(bannerId: string) {
-    const graphqlQuery = {
-        query: `
-            query {
-                getBannerById(_id: "${bannerId}") {
-                    id 
-                    image {
-                        alt 
-                        url
-                    } 
-                    text 
-                    _id 
-                    createdAt 
-                    author 
-                    category 
-                    rating 
-                    sale 
-                    productID
-                }
-            }
-        `
-    };
 
+async function getBannerName(bannerId:string) {
     try {
-        const response = await fetch('http://localhost:4000/graphql/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(graphqlQuery)
+        const { data, errors } = await client.query({
+            query: GET_BANNER_BY_ID,
+            variables: { bannerId },
         });
 
-        const jsonResponse = await response.json();
-        if (jsonResponse.errors) {
-            console.error('GraphQL Errors:', jsonResponse.errors);
+        if (errors) {
+            console.error('GraphQL Errors:', errors);
             return '';
         }
-        console.log(jsonResponse.data.getBannerById[0].image.alt);
-        return jsonResponse.data.getBannerById[0].image.alt;
+
+        console.log(data.getBannerById[0].image.alt);
+        return data.getBannerById[0].image.alt;
     } catch (error) {
         console.error('Error fetching banner name:', error);
         return '';
     }
 }
 
-async function getAllProductClicks() {
-    const graphqlQuery = {
-        query: `
-            query GetAllProductClicks {
-                getAllProductClicks {
-                    _id
-                    banner_id
-                    clicks {
-                        date
-                        count
-                    }
-                }
-            }
-        `
-    };
 
+
+async function getAllProductClicks() {
     try {
-        const response = await fetch('http://localhost:4000/graphql/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(graphqlQuery)
+        const { data, errors } = await client.query({
+            query: GET_ALL_PRODUCT_CLICKS
         });
 
-        const jsonResponse = await response.json();
-        // טיפול בשגיאות של GraphQL, אם ישנן
-        if (jsonResponse.errors) {
-            console.error('GraphQL Errors:', jsonResponse.errors);
+        if (errors) {
+            console.error('GraphQL Errors:', errors);
             return [];
         }
-        // החזרת הנתונים
-        return jsonResponse.data.getAllProductClicks;
+        return data.getAllProductClicks;
     } catch (error) {
         console.error('Error fetching product clicks:', error);
         return [];
@@ -92,10 +49,8 @@ async function getAllProductClicks() {
 
 async function getTopBannerIdsWithClicks(): Promise<Array<{ banner_id: string, clicks: number }>> {
     try {
-        // בקשת GraphQL במקום fetch
         const data = await getAllProductClicks();
 
-        // המשך הלוגיקה כפי שהייתה
         const clickCounts: { [key: string]: number } = data.reduce((acc: { [key: string]: number }, item: ClickData3) => {
             item.clicks.forEach((click: Click) => { 
                 acc[item.banner_id] = (acc[item.banner_id] || 0) + click.count;
