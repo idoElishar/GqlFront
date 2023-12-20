@@ -4,7 +4,7 @@ import { XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, ResponsiveContainer, A
 import { useParams } from 'react-router-dom';
 import client from '../../apolloClient/client';
 import { GET_PRODUCT_CLICKS_BY_ID } from '../../apolloClient/graphQL_querys';
-import { ChartData2, Click } from '../interface/interface';
+import { ChartData2, Click, GetProductClicksByIdResponse } from '../interface/interface';
 export default function Statistic() {
     const [data, setData] = useState<ChartData2[]>([]);
     const { id } = useParams();
@@ -12,15 +12,14 @@ export default function Statistic() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const { data: responseData } = await client.query({
+                const result: { data: GetProductClicksByIdResponse } = await client.query({
                     query: GET_PRODUCT_CLICKS_BY_ID,
                     variables: { id },
                 });
-                const formattedData = responseData.getProductClicksById.clicks.map((click: Click) => ({
+                const formattedData = result.data.getProductClicksById.clicks.map((click: Click) => ({
                     date: click.date,
                     clicks: click.count
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                })).sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
                 setData(formattedData);
             } catch (error) {
                 console.error('Error fetching data:', error);
